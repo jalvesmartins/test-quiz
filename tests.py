@@ -106,3 +106,32 @@ def test_select_more_choices_than_max_selections():
     choice2 = question.add_choice('b', True)
     with pytest.raises(Exception):
         question.correct_selected_choices([choice1.id, choice2.id])
+
+
+@pytest.fixture
+def question():
+    question = Question(title='Which are prime numbers?', points=10, max_selections=2)
+    question.add_choice('2', True)
+    question.add_choice('3', True)
+    question.add_choice('4', False)
+    return question
+
+def test_fixture_question_has_all_choices(question):
+    assert [choice.text for choice in question.choices] == ['2', '3', '4']
+
+def test_correct_selected_choices_returns_only_correct_ones(question):
+    assert question.correct_selected_choices([1, 3]) == [1]
+
+def test_correct_selected_choices_with_all_correct(question):
+    assert question.correct_selected_choices([1, 2]) == [1, 2]
+
+def test_correct_selected_choices_with_no_correct(question):
+    assert question.correct_selected_choices([3]) == []
+
+def test_select_more_than_max_selections_with_fixture(question):
+    with pytest.raises(Exception):
+        question.correct_selected_choices([1, 2, 3])
+
+def test_set_correct_choices_makes_choice_correct(question):
+    question.set_correct_choices([3])
+    assert question.correct_selected_choices([3]) == [3]
